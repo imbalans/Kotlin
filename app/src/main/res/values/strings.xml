@@ -3,4 +3,7 @@
     <string name="note_app">Notes App</string>
     <string name="example_note_name">Very important note</string>
     <string name="example_note_text">My very important note text with very important information</string>
+    <string name="new_note_title">Новая заметка</string>
+    <string name="heading">Заголовок</string>
+    <string name="note_text">Текст заметки</string>
 </resources>
