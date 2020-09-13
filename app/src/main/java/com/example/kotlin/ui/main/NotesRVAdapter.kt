@@ -9,8 +9,7 @@ import com.example.kotlin.R
 import com.example.kotlin.data.entity.Note
 import kotlinx.android.synthetic.main.item_note.view.*
 
-class NotesRVAdapter(val onItemClick: ((Note) -> Unit)? = null) :
-    RecyclerView.Adapter<NotesRVAdapter.ViewHolder>() {
+class NotesRVAdapter(val onItemClick: ((Note) -> Unit)? = null) : RecyclerView.Adapter<NotesRVAdapter.ViewHolder>() {
 
     var notes: List<Note> = listOf()
         set(value) {
