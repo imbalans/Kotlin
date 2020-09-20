@@ -6,7 +6,7 @@ import com.example.kotlin.data.entity.Note
 import com.example.kotlin.data.model.NoteResult
 import com.example.kotlin.ui.base.BaseViewModel
 
-class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
+class MainViewModel(notesRepository: NotesRepository) : BaseViewModel<List<Note>?, MainViewState>() {
 
     private val notesObserver = Observer<NoteResult> { result ->
         result ?: return@Observer
@@ -20,7 +20,7 @@ class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
         }
     }
 
-    private val repositoryNotes = NotesRepository.getNotes()
+    private val repositoryNotes = notesRepository.getNotes()
 
     init {
         viewStateLiveData.value = MainViewState()
