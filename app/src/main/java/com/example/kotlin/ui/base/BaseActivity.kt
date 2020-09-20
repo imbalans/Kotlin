@@ -1,6 +1,5 @@
 package com.example.kotlin.ui.base
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -16,10 +15,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
 
     companion object {
-        const val RC_SIGN_IN = 458
+        const val RC_SIGN_IN = 4242
     }
 
-    abstract val viewModel: BaseViewModel<T, S>
+    abstract val model: BaseViewModel<T, S>
     abstract val layoutRes: Int?
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +28,7 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
         }
 
         setSupportActionBar(toolbar)
-        viewModel.getViewState().observe(this, Observer { state ->
+        model.getViewState().observe(this, Observer { state ->
             state ?: return@Observer
             state.error?.let { e ->
                 renderError(e)
@@ -66,13 +65,11 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
 
     }
 
-    @SuppressLint("MissingSuperCall")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == RC_SIGN_IN && resultCode != Activity.RESULT_OK){
             finish()
         }
     }
-
 
     protected fun showError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
