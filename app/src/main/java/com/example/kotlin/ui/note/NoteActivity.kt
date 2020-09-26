@@ -12,14 +12,14 @@ import com.example.kotlin.R
 import com.example.kotlin.common.getColorInt
 import com.example.kotlin.data.entity.Note
 import com.example.kotlin.ui.base.BaseActivity
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.toolbar
 import kotlinx.android.synthetic.main.activity_note.*
 import org.koin.android.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
+class NoteActivity : BaseActivity<NoteData>() {
 
     companion object {
         private val EXTRA_NOTE = NoteActivity::class.java.name + "extra.NOTE"
@@ -37,7 +37,6 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
     private var color: Note.Color = Note.Color.WHITE
     override val model: NoteViewModel by viewModel()
     override val layoutRes = R.layout.activity_note
-
 
     val textChangeListener = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
@@ -61,7 +60,7 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
         initView()
     }
 
-    override fun renderData(data: NoteViewState.Data) {
+    override fun renderData(data: NoteData) {
         if(data.isDeleted) finish()
         this.note = data.note
         initView()
@@ -105,8 +104,8 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
         note?.let {
             model.save(it)
         }
-    }
 
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?) = menuInflater.inflate(R.menu.note, menu).let { true }
 
