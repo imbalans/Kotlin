@@ -10,15 +10,29 @@ import com.example.kotlin.R
 import com.example.kotlin.data.errors.NoAuthException
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 
 
-abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
+abstract class BaseActivity<S> : AppCompatActivity(), CoroutineScope {
 
     companion object {
         const val RC_SIGN_IN = 4242
     }
 
-    abstract val model: BaseViewModel<T, S>
+    override val coroutineContext: CoroutineContext by lazy {
+        Dispatchers.Main + Job()
+    }
+    private lateinit var dataJob: Job
+    private lateinit var errorJob: Job
+
+    abstract val model: BaseViewModel<S>
     abstract val layoutRes: Int?
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,17 +42,35 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
         }
 
         setSupportActionBar(toolbar)
-        model.getViewState().observe(this, Observer { state ->
-            state ?: return@Observer
-            state.error?.let { e ->
-                renderError(e)
-                return@Observer
-            }
-            renderData(state.data)
-        })
     }
 
-    abstract fun renderData(data: T)
+    override fun onStart() {
+        super.onStart()
+        dataJob = launch {
+            model.getViewState().consumeEach {
+                renderData(it)
+            }
+        }
+
+        errorJob = launch {
+            model.getErrorChannel().consumeEach {
+                renderError(it)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dataJob.cancel()
+        errorJob.cancel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext.cancel()
+    }
+
+    abstract fun renderData(data: S)
 
     protected fun renderError(error: Throwable?) {
         when(error){
@@ -47,6 +79,10 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
                 showError(message)
             }
         }
+    }
+
+    protected fun showError(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun startLogin(){
@@ -69,9 +105,5 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
         if(requestCode == RC_SIGN_IN && resultCode != Activity.RESULT_OK){
             finish()
         }
-    }
-
-    protected fun showError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
